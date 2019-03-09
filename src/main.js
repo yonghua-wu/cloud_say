@@ -5,6 +5,10 @@ import store from './store.js'
 // eslint-disable-next-line no-unused-vars
 import axios from 'axios'
 
+Vue.prototype.$http = axios.create({
+  timeout: 10000
+})
+
 new Vue({
   router,
   store,
