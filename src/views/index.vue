@@ -3,27 +3,27 @@
     <div class="live">
       <div class="big-font">{{ lives.city || '定位中' }}</div>
       <div class="big-font">
-        <span @click="unitConversion" class="">{{ temperature || '--' }}</span>
+        <span @click="unitConversion" class="">{{ temperature.livesTemperature || '--' }}</span>
         <span @click="unitConversion" class="temperature">{{ defaultUnit==='c' ? '℃' : '℉' }}</span>
       </div>
       <div class="big-font">{{ lives.weather || '--' }}</div>
     </div>
     <div class="forecast">
-      <div class="day">
-        <div class="week">星期一</div>
-        <div class="temperature">18-25</div>
-        <div class="weather">多云</div>
+      <div class="day" v-for="(item, index) in forecastsList" :key="index">
+        <div class="week">{{ item.week }}</div>
+        <div class="temperature">{{temperature.forecastsTemperature[index].nighttemp}}°-{{temperature.forecastsTemperature[index].daytemp}}°</div>
+        <div class="weather">{{item.dayweather}}</div>
+      </div>
+      <!-- <div class="day">
+        <div class="week">{{ forecasts.casts[2].week }}</div>
+        <div class="temperature">{{temperature.forecastsTemperature[2].nighttemp}}°-{{temperature.forecastsTemperature[2].daytemp}}°</div>
+        <div class="weather">{{forecasts.casts[2].dayweather}}</div>
       </div>
       <div class="day">
-        <div class="week">星期一</div>
-        <div class="temperature">18-25</div>
-        <div class="weather">晴</div>
-      </div>
-      <div class="day">
-        <div class="week">星期一</div>
-        <div class="temperature">18-25</div>
-        <div class="weather">晴</div>
-      </div>
+        <div class="week">{{ forecasts.casts[3].week }}</div>
+        <div class="temperature">{{temperature.forecastsTemperature[3].nighttemp}}°-{{temperature.forecastsTemperature[3].daytemp}}°</div>
+        <div class="weather">{{forecasts.casts[3].dayweather}}</div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -38,7 +38,9 @@ export default {
       // 实时天气
       lives: {},
       // 预报天气
-      forecasts: {},
+      forecasts: {
+        casts: []
+      },
       // 温度单位
       defaultUnit: 'c',
       // 华氏温度
@@ -55,31 +57,7 @@ export default {
       if(res.data.infocode === '10000') {
         that.adcode = res.data.adcode
       }
-      // 通过城市编码获取实时天气
-      that.$http.get('https://restapi.amap.com/v3/weather/weatherInfo?key='+ config.GAODEKEY +'&extensions=base&city=' + that.adcode).then(res => {
-        if(res.data.infocode === '10000') {
-          that.lives = res.data.lives[0]
-          that.fahrenheit.livesTemperature = that.CtoF(res.data.lives[0].temperature)
-        }
-      }).catch(() => {
-        console.log('获取实时天气失败')
-      })
-      // 通过城市编码获取预报天气
-      that.$http.get('https://restapi.amap.com/v3/weather/weatherInfo?key='+ config.GAODEKEY +'&extensions=all&city=' + that.adcode).then(res => {
-        if(res.data.infocode === '10000') {
-          that.forecasts = res.data.forecasts[0]
-          for(var i=0; i<that.forecasts.casts.length; i++) {
-            var daytemp = that.CtoF(that.forecasts.casts[i].daytemp)
-            var nighttemp = that.CtoF(that.forecasts.casts[i].nighttemp)
-            that.fahrenheit.forecastsTemperature.push({
-              'daytemp': daytemp,
-              'nighttemp': nighttemp
-            })
-          }
-        }
-      }).catch(() => {
-        console.log('获取预报天气失败')
-      })
+      that.getWeatherData(that.adcode)
     }).catch(() => {
       console.log('获取城市编码失败')
     })
@@ -98,55 +76,92 @@ export default {
       switch(week) {
         case '1':
         case 1: 
-          return '星期一'
+          return '周一'
         case '2':
         case 2: 
-          return '星期二'
+          return '周二'
         case '3':
         case 3: 
-          return '星期三'
+          return '周三'
         case '4':
         case 4: 
-          return '星期四'
+          return '周四'
         case '5':
         case 5: 
-          return '星期五'
+          return '周五'
         case '6':
         case 6: 
-          return '星期六'
+          return '周六'
         case '7':
         case 7: 
-          return '星期日'
+          return '周日'
       }
+    },
+    getWeatherData: function(adcode) {
+      var that = this
+      // 通过城市编码获取实时天气
+      that.$http.get('https://restapi.amap.com/v3/weather/weatherInfo?key='+ config.GAODEKEY +'&extensions=base&city=' + adcode).then(res => {
+        if(res.data.infocode === '10000') {
+          that.lives = res.data.lives[0]
+          that.fahrenheit.livesTemperature = that.CtoF(res.data.lives[0].temperature)
+        }
+      }).catch(() => {
+        console.log('获取实时天气失败')
+      })
+      // 通过城市编码获取预报天气
+      that.$http.get('https://restapi.amap.com/v3/weather/weatherInfo?key='+ config.GAODEKEY +'&extensions=all&city=' + adcode).then(res => {
+        if(res.data.infocode === '10000') {
+          that.forecasts = res.data.forecasts[0]
+          for(var i=0; i<that.forecasts.casts.length; i++) {
+            var daytemp = that.CtoF(that.forecasts.casts[i].daytemp)
+            var nighttemp = that.CtoF(that.forecasts.casts[i].nighttemp)
+            that.forecasts.casts[i].week = that.weekNumToWord(that.forecasts.casts[i].week)
+            that.fahrenheit.forecastsTemperature.push({
+              'daytemp': daytemp,
+              'nighttemp': nighttemp
+            })
+          }
+        }
+      }).catch(() => {
+        console.log('获取预报天气失败')
+      })
     }
   },
   computed: {
     temperature: function() {
       if (this.defaultUnit === 'f') {
-        return parseInt(this.lives.temperature*1.8)+32
+        return this.fahrenheit
       } else {
-        return this.lives.temperature
+        return {
+          livesTemperature: this.lives.temperature,
+          forecastsTemperature: this.forecasts.casts
+        }
       }
+    },
+    forecastsList: function () {
+      return this.forecasts.casts.slice(1, this.forecasts.casts.length)
     }
   }
 }
 </script>
 <style lang="scss" scoped>
-$marginTop: 16vh;
+.live, .forecast {
+  color: rgba(20, 20, 20, 0.95);
+}
 .live {
-  margin-top: $marginTop;
+  margin-top: 16vh;
   width: 100%;
-  margin-bottom: 20vh;
+  margin-bottom: 28vh;
   .big-font {
     font-weight: 500;
     padding: 0.8rem;
-    font-size: 3rem;
+    font-size: 30px;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     justify-content: center;
     .temperature {
-      font-size: 1.5rem;
+      font-size: 14px;
     }
     span {
       cursor: pointer;
@@ -157,7 +172,8 @@ $marginTop: 16vh;
   display: flex;
   flex-direction: row;
   width: 100%;
-  font-size: 1.4rem;
+  margin-bottom: 10vh;
+  font-size: 16px;
   .day {
     height: 20vh;
     width: 33%;
@@ -174,4 +190,3 @@ $marginTop: 16vh;
   }
 }
 </style>
-
