@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="live">
-      <div class="big-font">{{ lives.city || '定位中' }}</div>
+      <div class="big-font cursor-pointer" @click="toSeachPage">{{ lives.city || '--'}}</div>
       <div class="big-font">
         <span @click="unitConversion" class="">{{ temperature.livesTemperature || '--' }}</span>
         <span @click="unitConversion" class="temperature">{{ defaultUnit==='c' ? '℃' : '℉' }}</span>
@@ -14,16 +14,6 @@
         <div class="temperature">{{temperature.forecastsTemperature[index].nighttemp}}°-{{temperature.forecastsTemperature[index].daytemp}}°</div>
         <div class="weather">{{item.dayweather}}</div>
       </div>
-      <!-- <div class="day">
-        <div class="week">{{ forecasts.casts[2].week }}</div>
-        <div class="temperature">{{temperature.forecastsTemperature[2].nighttemp}}°-{{temperature.forecastsTemperature[2].daytemp}}°</div>
-        <div class="weather">{{forecasts.casts[2].dayweather}}</div>
-      </div>
-      <div class="day">
-        <div class="week">{{ forecasts.casts[3].week }}</div>
-        <div class="temperature">{{temperature.forecastsTemperature[3].nighttemp}}°-{{temperature.forecastsTemperature[3].daytemp}}°</div>
-        <div class="weather">{{forecasts.casts[3].dayweather}}</div>
-      </div> -->
     </div>
   </div>
 </template>
@@ -35,6 +25,7 @@ export default {
     return {
       // 城市编码
       adcode: '431000',
+      city: '--',
       // 实时天气
       lives: {},
       // 预报天气
@@ -54,8 +45,9 @@ export default {
     let that = this
     //获取当前IP的城市编码
     this.$http.get('https://restapi.amap.com/v3/ip?key=' + config.GAODEKEY).then(res => {
-      if(res.data.infocode === '10000') {
+      if(res.data.infocode === '10000' || res.data.infocode === 10000) {
         that.adcode = res.data.adcode
+        that.city = res.data.city
       }
       that.getWeatherData(that.adcode)
     }).catch(() => {
@@ -63,15 +55,25 @@ export default {
     })
   },
   methods: {
-    // 切换温度的单位
+    /**
+     * 切换温度的单位
+     */
     unitConversion: function () {
       this.defaultUnit = this.defaultUnit==='c'?'f':'c'
     },
-    // 摄氏度转华氏度
+    /**
+     * 摄氏度转华氏度
+     * @param {int} c 摄氏度
+     * @return {int} 华氏度
+     */
     CtoF: function (c) {
       return parseInt(c * 1.8) + 32
     },
-    // 将数字星期数转为汉字
+    /**
+     * 将数字星期数转为汉字
+     * @param {int, string} week
+     * @returns {string}
+     */
     weekNumToWord: function(week) {
       switch(week) {
         case '1':
@@ -97,11 +99,15 @@ export default {
           return '周日'
       }
     },
+    /**
+     * 获取adcode城市的天气情况
+     * @param {string} adcode
+     */
     getWeatherData: function(adcode) {
       var that = this
       // 通过城市编码获取实时天气
       that.$http.get('https://restapi.amap.com/v3/weather/weatherInfo?key='+ config.GAODEKEY +'&extensions=base&city=' + adcode).then(res => {
-        if(res.data.infocode === '10000') {
+        if(res.data.infocode === '10000' || res.data.infocode === 10000) {
           that.lives = res.data.lives[0]
           that.fahrenheit.livesTemperature = that.CtoF(res.data.lives[0].temperature)
         }
@@ -110,7 +116,7 @@ export default {
       })
       // 通过城市编码获取预报天气
       that.$http.get('https://restapi.amap.com/v3/weather/weatherInfo?key='+ config.GAODEKEY +'&extensions=all&city=' + adcode).then(res => {
-        if(res.data.infocode === '10000') {
+        if(res.data.infocode === '10000' || res.data.infocode === 10000) {
           that.forecasts = res.data.forecasts[0]
           for(var i=0; i<that.forecasts.casts.length; i++) {
             var daytemp = that.CtoF(that.forecasts.casts[i].daytemp)
@@ -125,6 +131,12 @@ export default {
       }).catch(() => {
         console.log('获取预报天气失败')
       })
+    },
+    /**
+     * 
+     */
+    toSeachPage: function() {
+      this.$router.push('seach')
     }
   },
   computed: {
@@ -145,13 +157,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.live, .forecast {
-  color: rgba(20, 20, 20, 0.95);
-}
 .live {
   margin-top: 16vh;
   width: 100%;
   margin-bottom: 28vh;
+  
   .big-font {
     font-weight: 500;
     padding: 0.8rem;
@@ -160,6 +170,14 @@ export default {
     flex-direction: row;
     align-items: flex-start;
     justify-content: center;
+    input {
+      border: none;
+      padding: 0px;
+      margin: 0px;
+      background-color: unset;
+      text-align: center;
+      outline: 0;
+    }
     .temperature {
       font-size: 14px;
     }

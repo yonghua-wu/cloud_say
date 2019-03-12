@@ -15,7 +15,15 @@ html, body, p, h1, h2, h3, h4, h5, h6, span {
 }
 body {
   background-color: #f9f9f9;
-  box-sizing:border-box;
+  color: rgba(20, 20, 20, 0.95);
+}
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.cursor-pointer {
+  cursor: pointer;
 }
 [v-cloak] {
   display: none;
