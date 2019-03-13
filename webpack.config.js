@@ -45,7 +45,9 @@ module.exports = {
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       // eslint-disable-next-line no-undef
-      template: __dirname + '/src/index.html'
+      template: __dirname + '/src/index.html',
+      // eslint-disable-next-line no-undef
+      favicon: __dirname + '/src/images/favicon.png'
     })
   ]
 }

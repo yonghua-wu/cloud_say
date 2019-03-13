@@ -7,6 +7,7 @@ import seach from './views/seach.vue'
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '',

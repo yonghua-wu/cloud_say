@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <input v-model="seachText" type="text" size="15" placeholder="输入城市名称" autofocus="autofocus">
+    <input v-model="seachText" v-focus type="text" size="15" placeholder="输入城市名称" autofocus="autofocus">
     <div class="city-item" v-for="(item, index) in cityList" :key="index" @click="selectedCity(index)">
       {{item.name}}
     </div>
@@ -70,11 +70,20 @@ export default {
         }
       })
     },
-
     selectedCity: function(index) {
       this.$store.commit('setAdcode', this.cityList[index].adcode)
       this.$store.commit('clearIndexData')
       this.$router.go(-1)
+    }
+  },
+  directives: {
+    focus: {
+      inserted: function (el, {value}) {
+        console.log(el,{value})
+        if (value) {
+          el.focus()
+        }
+      }
     }
   }
 }
@@ -143,4 +152,3 @@ $color-theme: rgba(20, 20, 20, 0.95);
   }
 }
 </style>
-
