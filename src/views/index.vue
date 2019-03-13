@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="live">
-      <div class="big-font cursor-pointer" @click="toSeachPage">{{ lives.city || '--'}}</div>
+      <div class="big-font">
+        <div class="cursor-pointer" @click="toSeachPage">{{ lives.city || '--'}}</div>
+      </div>
       <div class="big-font">
         <span @click="unitConversion" class="">{{ temperature.livesTemperature || '--' }}</span>
         <span @click="unitConversion" class="temperature">{{ defaultUnit==='c' ? '℃' : '℉' }}</span>
@@ -19,13 +21,11 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
 import config from '../config.js'
 export default {
   data() {
     return {
-      // 城市编码
-      adcode: '431000',
-      city: '--',
       // 实时天气
       lives: {},
       // 预报天气
@@ -42,17 +42,15 @@ export default {
     }
   },
   mounted: function() {
-    let that = this
-    //获取当前IP的城市编码
-    this.$http.get('https://restapi.amap.com/v3/ip?key=' + config.GAODEKEY).then(res => {
-      if(res.data.infocode === '10000' || res.data.infocode === 10000) {
-        that.adcode = res.data.adcode
-        that.city = res.data.city
-      }
-      that.getWeatherData(that.adcode)
-    }).catch(() => {
-      console.log('获取城市编码失败')
-    })
+    // 如果缓存中的indexData数据没有被清除，表示没有在搜索页中选择城市，恢复上次数据
+    if(this.$store.state.indexData !== null) {
+      this.lives = this.$store.state.indexData.lives
+      this.forecasts = this.$store.state.indexData.forecasts
+      this.fahrenheit = this.$store.state.indexData.fahrenheit
+    } else if(this.$store.state.adcode !== '') {
+      //在搜索页中选择了城市，这时不会触发侦听器所以需要在这里调用获取天气
+      this.getWeatherData(this.$store.state.adcode)
+    }
   },
   methods: {
     /**
@@ -136,10 +134,18 @@ export default {
      * 
      */
     toSeachPage: function() {
+      this.$store.commit('storeIndexData', {
+        lives: this.lives,
+        forecasts: this.forecasts,
+        fahrenheit: this.fahrenheit
+      })
       this.$router.push('seach')
     }
   },
   computed: {
+    ...mapState([
+      'adcode'
+    ]),
     temperature: function() {
       if (this.defaultUnit === 'f') {
         return this.fahrenheit
@@ -152,6 +158,12 @@ export default {
     },
     forecastsList: function () {
       return this.forecasts.casts.slice(1, this.forecasts.casts.length)
+    }
+  },
+  watch: {
+    // 当adcode的内容改变时（在刚进页面时会调用）
+    adcode: function() {
+      this.getWeatherData(this.$store.state.adcode)
     }
   }
 }

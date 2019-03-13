@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './app.vue'
 import router from './router.js'
-import store from './store.js'
+import store from './stores/store.js'
 // eslint-disable-next-line no-unused-vars
 import axios from 'axios'
 

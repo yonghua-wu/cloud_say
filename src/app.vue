@@ -4,7 +4,18 @@
   </div>
 </template>
 <script>
+import config from './config.js'
 export default {
+  mounted: function() {
+    var that = this
+    this.$http.get('https://restapi.amap.com/v3/ip?key=' + config.GAODEKEY).then(res => {
+      if(res.data.infocode === '10000' || res.data.infocode === 10000) {
+        that.$store.commit('setAdcode', res.data.adcode)
+      }
+    }).catch(() => {
+      console.log('获取城市编码失败')
+    })
+  }
 }
 </script>
 

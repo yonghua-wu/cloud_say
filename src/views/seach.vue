@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <input v-model="seachText" type="text" size="15" placeholder="输入城市名称" autofocus="autofocus">
-    <div class="city-item" v-for="(item, index) in cityList" :key="index">
+    <div class="city-item" v-for="(item, index) in cityList" :key="index" @click="selectedCity(index)">
       {{item.name}}
     </div>
   </div>
@@ -54,7 +54,7 @@ export default {
             if (seachResult[0].level === 'city' || seachResult[0].level === 'district') {
               // 直接显示这条结果
               that.cityList = [{
-                citycode: seachResult[0].citycode,
+                adcode: seachResult[0].adcode,
                 name: seachResult[0].name
               }]
             // 同时该地区等级为‘province’ （省份）
@@ -69,6 +69,12 @@ export default {
           }
         }
       })
+    },
+
+    selectedCity: function(index) {
+      this.$store.commit('setAdcode', this.cityList[index].adcode)
+      this.$store.commit('clearIndexData')
+      this.$router.go(-1)
     }
   }
 }
