@@ -33,7 +33,7 @@ export default {
         clearTimeout(timing)
         timing = null
       }
-      timing = setTimeout(function(){that.seachCity(that.seachText)}, 1500)
+      timing = setTimeout(function(){that.seachCity(that.seachText)}, 1000)
     }
   },
   methods: {
@@ -44,7 +44,6 @@ export default {
     seachCity: function(input) {
       console.log('seacing')
       var that = this
-      this.cityList = []
       this.$http.get('https://restapi.amap.com/v3/config/district?key=' + config.GAODEKEY + '&keywords=' + input +'&subdistrict=2&extensions=base').then(res => {
         if (res.data.infocode === '10000' || res.data.infocode === 10000) {
           var seachResult = res.data.districts
@@ -64,10 +63,14 @@ export default {
             } else {
               that.cityList = [{name: '未搜索到结果'}]
             }
+          } else if (seachResult.length === 0) {
+            that.cityList = [{name: '未搜索到结果'}]
           } else {
             that.cityList = seachResult
           }
         }
+      }).catch(() => {
+        that.cityList = [{name: '网络错误'}]
       })
     },
     selectedCity: function(index) {
@@ -79,7 +82,6 @@ export default {
   directives: {
     focus: {
       inserted: function (el, {value}) {
-        console.log(el,{value})
         if (value) {
           el.focus()
         }
