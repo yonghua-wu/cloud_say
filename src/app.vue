@@ -1,7 +1,11 @@
 <template>
   <div v-cloak>
-    <div v-if="isLocation">定位中</div>
-    <router-view v-else></router-view>
+    <div class="position">
+      <img v-if="isLocation" src="./images/favicon.png" alt="">
+    </div>
+    <transition name="page">
+      <router-view v-if="!isLocation" class="page"></router-view>
+    </transition>
   </div>
 </template>
 <script>
@@ -52,7 +56,7 @@ export default {
           // 指示浏览器获取高精度的位置，默认为false
           enableHighAcuracy: true,
           // 指定获取地理位置的超时时间，默认不限时，单位为毫秒
-          timeout: 10000,
+          timeout: 30000,
           // 最长有效期，在重复获取地理位置时，此参数指定多久再次获取位置。
           maximumAge: 1000
         })
@@ -119,6 +123,42 @@ body {
 }
 [v-cloak] {
   display: none;
+}
+.page {
+  position: absolute;
+  width: 100%;
+}
+.page-enter-active, .page-leave-active {
+  transition: opacity 300ms 100ms;
+}
+.page-enter, .page-leave-to {
+  opacity: 0;
+}
+.position {
+  // 动画 1、关键帧名称，动画时间，动画过程效果
+  animation: breathing 1000ms ease-in-out;
+  // 反向播放
+  animation-direction: alternate;
+  // 重复播放
+  animation-iteration-count: infinite;
+  width: 100%;
+  display:flex;
+  justify-content: center;
+  img {
+    margin-top: calc(35vh - 100px);
+    // box-shadow: 0px 0px 2px rgba(20, 20, 20, 0.3);
+    filter: drop-shadow(0 0 2px rgba(43, 0, 43, 0.1));
+    width: 101px;
+    height: 101px;
+  }
+}
+@keyframes breathing {
+  100% {
+    opacity: 0.1;
+  }
+  0% {
+    opacity: 1;
+  }
 }
 </style>
 

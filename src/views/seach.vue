@@ -74,6 +74,9 @@ export default {
       })
     },
     selectedCity: function(index) {
+      if (this.cityList[index].adcode == undefined) {
+        return
+      }
       this.$store.commit('setAdcode', this.cityList[index].adcode)
       this.$store.commit('clearIndexData')
       this.$router.go(-1)
