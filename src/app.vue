@@ -1,7 +1,7 @@
 <template>
   <div v-cloak>
-    <div class="position">
-      <img v-if="isLocation" src="./images/favicon.png" alt="">
+    <div class="position" v-if="isLocation">
+      <img src="./images/favicon.png" alt="">
     </div>
     <transition name="page">
       <router-view v-if="!isLocation" class="page"></router-view>
@@ -10,6 +10,7 @@
 </template>
 <script>
 import config from './config.js'
+// import getLocation from './utils/getLocation.js'
 export default {
   data: function() {
     return {
@@ -19,6 +20,8 @@ export default {
   },
   mounted: function() {
     this.getLocation()
+    // var position = getLocation()
+    // console.log(position)
   },
   methods: {
     getLocation: function() {
@@ -56,7 +59,7 @@ export default {
           // 指示浏览器获取高精度的位置，默认为false
           enableHighAcuracy: true,
           // 指定获取地理位置的超时时间，默认不限时，单位为毫秒
-          timeout: 30000,
+          timeout: 3000,
           // 最长有效期，在重复获取地理位置时，此参数指定多久再次获取位置。
           maximumAge: 1000
         })
@@ -117,6 +120,10 @@ body {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  width: 100%;
 }
 .cursor-pointer {
   cursor: pointer;

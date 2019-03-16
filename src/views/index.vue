@@ -1,21 +1,40 @@
 <template>
   <div>
-    <div class="live">
-      <div class="big-font">
-        <div class="cursor-pointer" @click="toSeachPage">{{ lives.city || '--'}}</div>
-      </div>
-      <div class="big-font">
-        <span @click="unitConversion" class="">{{ temperature.livesTemperature || '--' }}</span>
-        <span @click="unitConversion" class="temperature">{{ defaultUnit==='c' ? '℃' : '℉' }}</span>
-      </div>
-      <div class="big-font">{{ lives.weather || '--' }}</div>
+    <div class="menu">
+      <img class="cursor-pointer" src="../images/menu.png">
     </div>
-    <div class="forecast">
-      <div class="day" v-for="(item, index) in forecastsList" :key="index">
-        <div class="week">{{ item.week }}</div>
-        <div class="temperature">{{temperature.forecastsTemperature[index].nighttemp}}°-{{temperature.forecastsTemperature[index].daytemp}}°</div>
-        <div class="weather">{{item.dayweather}}</div>
+    <div class="container">
+      <div class="left-bar">
+        <div class="city-name">XXxxXX</div>
+        <div class="city-name">XXxxXX</div>
+        <div class="city-name">XXxxXX</div>
+        <div class="city-name">XXxxXX</div>
+        <div class="city-name">XXxxXX</div>
+        <div class="city-name">XXxxXX</div>
+        <div class="city-name">XXxxXX</div>
+        <div class="city-name">XXxxXX</div>
+        <div class="city-name">XXxxXX</div>
       </div>
+      <div class="content">
+        <div class="live">
+          <div class="big-font">
+            <div class="cursor-pointer" @click="toSeachPage">{{ lives.city || '--'}}</div>
+          </div>
+          <div class="big-font">
+            <span @click="unitConversion" class="">{{ temperature.livesTemperature || '--' }}</span>
+            <span @click="unitConversion" class="temperature">{{ defaultUnit==='c' ? '℃' : '℉' }}</span>
+          </div>
+          <div class="big-font">{{ lives.weather || '--' }}</div>
+        </div>
+        <div class="forecast">
+          <div class="day" v-for="(item, index) in forecastsList" :key="index">
+            <div class="week">{{ item.week }}</div>
+            <div class="temperature">{{temperature.forecastsTemperature[index].nighttemp}}°-{{temperature.forecastsTemperature[index].daytemp}}°</div>
+            <div class="weather">{{item.dayweather}}</div>
+          </div>
+        </div>
+      </div>
+      <div class="right-bar"></div>
     </div>
   </div>
 </template>
@@ -169,53 +188,100 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.live {
-  margin-top: 16vh;
-  width: 100%;
-  margin-bottom: 28vh;
-  
-  .big-font {
-    font-weight: 500;
-    padding: 0.8rem;
-    font-size: 30px;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    input {
-      border: none;
-      padding: 0px;
-      margin: 0px;
-      background-color: unset;
-      text-align: center;
-      outline: 0;
-    }
-    .temperature {
-      font-size: 14px;
-    }
-    span {
-      cursor: pointer;
+// mobile
+@media screen and (max-width: 959px) {
+  .menu {
+    img {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 35px;
+      height: 35px;
     }
   }
 }
-.forecast {
+// pc
+@media screen and (min-width: 960px) {
+  .menu {
+    img {
+      display: none;
+    }
+  }
+}
+.container {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  margin-bottom: 10vh;
-  font-size: 16px;
-  .day {
-    height: 20vh;
-    width: 33%;
-    text-align: center;
-    .week {
-      padding: 0.6rem;
+  height: 100%;
+  .left-bar {
+    width: 18%;
+    min-width: 250px;
+    max-width: 400px;
+    height: 100vh;
+    border-right: 1px solid rgb(70, 70, 70);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    .city-name {
+      width: 100%;
+      text-align: center;
+      height: 50px;
+      line-height: 50px;
     }
-    .temperature {
-      padding: 0.6rem;
+  }
+  .right-bar {
+    width: 18%;
+    max-width: 400px;
+  }
+  @media screen and (max-width: 959px) {
+    .right-bar,.left-bar {
+      display: none;
     }
-    .weather {
-      padding: 0.6rem;
+  }
+  .content {
+    flex: 1;
+    .live {
+      margin-top: 16vh;
+      margin-bottom: 28vh;
+      padding: 10px; 
+      height: 24vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      .big-font {
+        font-weight: 500;
+        font-size: 30px;
+        .temperature {
+          font-size: 14px;
+        }
+        span {
+          cursor: pointer;
+        }
+      }
+    }
+    .forecast {
+      display: flex;
+      flex-direction: row;
+      max-width: 960px;
+      margin: 0px auto 16vh auto;
+      font-size: 16px;
+      .day {
+        height: 16vh;
+        width: 33%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        .week {
+          padding: 0.8rem;
+        }
+        .temperature {
+          padding: 0.6rem;
+        }
+        .weather {
+          padding: 0.6rem;
+        }
+      }
     }
   }
 }
