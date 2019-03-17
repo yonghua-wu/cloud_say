@@ -20,8 +20,12 @@ export default {
   },
   mounted: function() {
     this.getLocation()
-    // var position = getLocation()
-    // console.log(position)
+    var cityList = localStorage.getItem('cityList')
+    if (cityList === null) {
+      this.$store.commit('setCityList', [])
+    } else {
+      this.$store.commit('setCityList', JSON.parse(cityList))
+    }
   },
   methods: {
     getLocation: function() {
@@ -134,6 +138,7 @@ html, body {
 .page {
   position: absolute;
   width: 100%;
+  //height: 100%;
 }
 .page-enter-active, .page-leave-active {
   transition: opacity 300ms 100ms;

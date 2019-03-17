@@ -1,21 +1,25 @@
 <template>
   <div>
     <div class="menu">
-      <img class="cursor-pointer" src="../images/menu.png">
+      <img @click="showLeftBar=true" class="cursor-pointer" src="../images/menu.png">
     </div>
     <div class="container">
-      <div class="left-bar">
-        <div class="city-name">XXxxXX</div>
-        <div class="city-name">XXxxXX</div>
-        <div class="city-name">XXxxXX</div>
-        <div class="city-name">XXxxXX</div>
-        <div class="city-name">XXxxXX</div>
-        <div class="city-name">XXxxXX</div>
-        <div class="city-name">XXxxXX</div>
-        <div class="city-name">XXxxXX</div>
-        <div class="city-name">XXxxXX</div>
+      <div class="left-bar" :class="{'show-left-bar': showLeftBar}">
+        <div class="city-group">
+          <div class="city-name" v-for="(item, index) in cityList" :key="index">
+            <div class="del cursor-pointer" @click="selectCity(item.adcode)"></div>
+            <div class="name cursor-pointer" @click="selectCity(item.adcode)">{{item.name}}</div>
+            <div class="del cursor-pointer" @click="delCity(index)">×</div>
+          </div>
+          <div class="city-name" @click="addCity">
+            <!-- <img class="plus" src="../images/plus.png" alt=""> -->
+            <div class="del cursor-pointer"></div>
+            <div class="name cursor-pointer">添加城市</div>
+            <div class="del cursor-pointer"></div>
+          </div>
+        </div>
       </div>
-      <div class="content">
+      <div class="content" :class="{'hidden-content': showLeftBar}" @click="showLeftBar=false">
         <div class="live">
           <div class="big-font">
             <div class="cursor-pointer" @click="toSeachPage">{{ lives.city || '--'}}</div>
@@ -57,7 +61,8 @@ export default {
       fahrenheit: {
         livesTemperature: null,
         forecastsTemperature: []
-      }
+      },
+      showLeftBar: false
     }
   },
   mounted: function() {
@@ -159,11 +164,35 @@ export default {
         fahrenheit: this.fahrenheit
       })
       this.$router.push('seach')
+    },
+    addCity: function() {
+      for(var i=0; i<this.cityList.length; i++) {
+        if(this.cityList[i].adcode === this.lives.adcode) {
+          return
+        }
+      }
+      this.$store.commit('addCity', {
+        adcode: this.lives.adcode,
+        name: this.lives.city
+      })
+    },
+    delCity: function(index) {
+      console.log(index)
+      this.$store.commit('delCity', index)
+    },
+    selectCity: function(adcode) {
+      if (adcode === this.lives.adcode) {
+        this.showLeftBar = false
+        return
+      }
+      this.getWeatherData(adcode)
+      this.showLeftBar = false
     }
   },
   computed: {
     ...mapState([
-      'adcode'
+      'adcode',
+      'cityList'
     ]),
     temperature: function() {
       if (this.defaultUnit === 'f') {
@@ -188,69 +217,69 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-// mobile
-@media screen and (max-width: 959px) {
-  .menu {
-    img {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      width: 35px;
-      height: 35px;
-    }
-  }
-}
-// pc
-@media screen and (min-width: 960px) {
-  .menu {
-    img {
-      display: none;
-    }
-  }
-}
 .container {
   display: flex;
   flex-direction: row;
-  height: 100%;
+  //height: 100%;
   .left-bar {
     width: 18%;
-    min-width: 250px;
-    max-width: 400px;
     height: 100vh;
-    border-right: 1px solid rgb(70, 70, 70);
+    color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    .city-name {
+    flex-flow: wrap;
+    .city-group {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       width: 100%;
-      text-align: center;
-      height: 50px;
-      line-height: 50px;
+      padding: 0px 20px;
+      .city-name {
+        width: 100%;
+        text-align: center;
+        height: 50px;
+        line-height: 50px;
+        display: flex;
+        flex-direction: row;
+        &:first-child {
+        margin-top: 30px;
+        }
+        &:last-child {
+          margin-bottom: 30px;
+        }
+        .name {
+          width: calc(100% - 52px);
+          overflow: hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap
+        }
+        .del {
+          font-size: 26px;
+          width: 26px;
+        }
+      }
     }
   }
   .right-bar {
     width: 18%;
     max-width: 400px;
   }
-  @media screen and (max-width: 959px) {
-    .right-bar,.left-bar {
-      display: none;
-    }
-  }
   .content {
     flex: 1;
     .live {
       margin-top: 16vh;
-      margin-bottom: 28vh;
+      margin-bottom: 26vh;
       padding: 10px; 
-      height: 24vh;
+      height: 26vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-around;
       .big-font {
         font-weight: 500;
-        font-size: 30px;
+        font-size: 28px;
         .temperature {
           font-size: 14px;
         }
@@ -281,6 +310,75 @@ export default {
         .weather {
           padding: 0.6rem;
         }
+      }
+    }
+  }
+}
+// mobile
+@media screen and (max-width: 959px) {
+  .menu {
+    img {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+  .container {
+    .left-bar,.right-bar {
+      display: none;
+    }
+    .left-bar {
+      width: 65%;
+      max-width: 250px;
+      display: none;
+      position: absolute;
+      z-index: 10;
+      box-shadow: 0px 0px 6px rgba(31, 31, 31, 0.2);
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    .hidden-content {
+      position: relative;
+      z-index: 1;
+      background-color: rgba(117, 117, 117, 0.74);
+    }
+    .show-left-bar {
+      display: flex;
+    }
+  }
+}
+// pc
+@media screen and (min-width: 960px) {
+  .menu {
+    img {
+      display: none;
+    }
+  }
+  .container {
+    .left-bar {
+      min-width: 250px;
+      max-width: 400px;
+      border-right: 1px solid rgba(41, 41, 41, 0.1);
+      .city-group {
+        .city-name {
+          .del {
+            opacity: 0;
+          }
+          &:hover {
+            color: #000;
+            .del {
+              opacity: 1;
+              &:hover {
+                color: #e73f3f;
+              }
+            }
+          }
+        }
+      }
+      &:hover {
+        background-color: rgba(177, 177, 177, 0.08);
       }
     }
   }
