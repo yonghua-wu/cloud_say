@@ -12,7 +12,6 @@
             <div class="del cursor-pointer" @click="delCity(index)">×</div>
           </div>
           <div class="city-name" @click="addCity">
-            <!-- <img class="plus" src="../images/plus.png" alt=""> -->
             <div class="del cursor-pointer"></div>
             <div class="name cursor-pointer">添加城市</div>
             <div class="del cursor-pointer"></div>
